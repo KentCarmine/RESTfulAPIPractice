@@ -1,7 +1,9 @@
 package com.kentcarmine.restapipractice.controller;
 
 import com.kentcarmine.restapipractice.dto.BookDto;
+import com.kentcarmine.restapipractice.dto.CreateBookDto;
 import com.kentcarmine.restapipractice.exception.BookNotFoundException;
+import com.kentcarmine.restapipractice.exception.InvalidBookInputException;
 import com.kentcarmine.restapipractice.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,8 +22,6 @@ public class BookController {
     public BookController(BookService bookService) {
         this.bookService = bookService;
     }
-
-    // Create book
 
     // List one book by id
     @GetMapping("/{id}")
@@ -53,6 +53,16 @@ public class BookController {
         return bookService.getAllBooksByAuthor(bookAuthor);
     }
 
+    // Create book
+    @PostMapping("/new")
+    public BookDto createNewBook(@RequestBody CreateBookDto newBook) {
+        if (newBook == null) {
+            throw new InvalidBookInputException();
+        }
+
+        return bookService.createNewBook(newBook);
+    }
+
     // Update book
 
     // Delete book by id
@@ -60,7 +70,13 @@ public class BookController {
 
     @ExceptionHandler(BookNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<String> handleResourceNotFoundException(BookNotFoundException bnfe) {
+    public ResponseEntity<String> handleBookNotFoundException(BookNotFoundException bnfe) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(bnfe.getMessage());
+    }
+
+    @ExceptionHandler(InvalidBookInputException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleInvalidBookInputException(InvalidBookInputException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 }
