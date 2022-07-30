@@ -66,7 +66,14 @@ public class BookController {
     // Update book
 
     // Delete book by id
+    @DeleteMapping("/{id}")
+    public BookDto deleteBook(@PathVariable Long id) {
+        if (!bookService.isBookWithIdExists(id)) {
+            throw new BookNotFoundException();
+        }
 
+        return bookService.deleteBookById(id);
+    }
 
     @ExceptionHandler(BookNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)

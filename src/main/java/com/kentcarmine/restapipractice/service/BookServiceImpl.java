@@ -61,4 +61,16 @@ public class BookServiceImpl implements BookService {
 
         return bookToBookDtoConverter.convert(newBook);
     }
+
+    @Override
+    public BookDto deleteBookById(Long id) {
+        BookDto deleted = getBookById(id);
+        bookRepository.deleteById(id);
+        return deleted;
+    }
+
+    @Override
+    public boolean isBookWithIdExists(Long id) {
+        return bookRepository.existsById(id);
+    }
 }
