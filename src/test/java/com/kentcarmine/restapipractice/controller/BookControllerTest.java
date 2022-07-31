@@ -79,14 +79,33 @@ class BookControllerTest {
         when(bookService.getBookById(any())).thenReturn(null);
         mockMvc.perform(get("/api/v1/books/1"))
                 .andExpect(status().isNotFound());
+
         verify(bookService, times(1)).getBookById(any());
     }
 
     @Test
-    void getAllBooks() throws Exception {
+    void getBookById_generalError() throws Exception {
+        when(bookService.getBookById(any())).thenThrow(new RuntimeException());
+        mockMvc.perform(get("/api/v1/books/1"))
+                .andExpect(status().isInternalServerError());
+
+        verify(bookService, times(1)).getBookById(any());
+    }
+
+    @Test
+    void getAllBooks_success() throws Exception {
         when(bookService.getAllBooks()).thenReturn(bookDtoSet);
         mockMvc.perform(get("/api/v1/books/"))
                 .andExpect(status().isOk());
+        verify(bookService, times(1)).getAllBooks();
+    }
+
+    @Test
+    void getAllBooks_generalError() throws Exception {
+        when(bookService.getAllBooks()).thenThrow(new RuntimeException());
+        mockMvc.perform(get("/api/v1/books/"))
+                .andExpect(status().isInternalServerError());
+
         verify(bookService, times(1)).getAllBooks();
     }
 
@@ -95,6 +114,7 @@ class BookControllerTest {
         when(bookService.getAllBooksByTitle(any())).thenReturn(Set.of(bookDto1));
         mockMvc.perform(get("/api/v1/books/title/" + bookDto1.getTitle()))
                 .andExpect(status().isOk());
+
         verify(bookService, times(1)).getAllBooksByTitle(anyString());
     }
 
@@ -103,6 +123,16 @@ class BookControllerTest {
         when(bookService.getAllBooksByTitle(any())).thenReturn(Set.of());
         mockMvc.perform(get("/api/v1/books/title/argleblargle"))
                 .andExpect(status().isOk());
+
+        verify(bookService, times(1)).getAllBooksByTitle(anyString());
+    }
+
+    @Test
+    void getAllBooksByTitle_generalError() throws Exception {
+        when(bookService.getAllBooksByTitle(any())).thenThrow(new RuntimeException());
+        mockMvc.perform(get("/api/v1/books/title/" + bookDto1.getTitle()))
+                .andExpect(status().isInternalServerError());
+
         verify(bookService, times(1)).getAllBooksByTitle(anyString());
     }
 
@@ -111,6 +141,7 @@ class BookControllerTest {
         when(bookService.getAllBooksByAuthor(any())).thenReturn(Set.of(bookDto1));
         mockMvc.perform(get("/api/v1/books/author/" + bookDto1.getAuthor()))
                 .andExpect(status().isOk());
+
         verify(bookService, times(1)).getAllBooksByAuthor(anyString());
     }
 
@@ -119,6 +150,16 @@ class BookControllerTest {
         when(bookService.getAllBooksByAuthor(any())).thenReturn(Set.of());
         mockMvc.perform(get("/api/v1/books/author/fargle"))
                 .andExpect(status().isOk());
+
+        verify(bookService, times(1)).getAllBooksByAuthor(anyString());
+    }
+
+    @Test
+    void getAllBooksByAuthor_generalError() throws Exception {
+        when(bookService.getAllBooksByAuthor(any())).thenThrow(new RuntimeException());
+        mockMvc.perform(get("/api/v1/books/author/" + bookDto1.getAuthor()))
+                .andExpect(status().isInternalServerError());
+
         verify(bookService, times(1)).getAllBooksByAuthor(anyString());
     }
 
@@ -148,7 +189,6 @@ class BookControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(bookService, times(0)).createNewBook(any());
-
     }
 
     @Test
@@ -162,7 +202,21 @@ class BookControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(bookService, times(0)).createNewBook(any());
+    }
 
+    @Test
+    void createNewBook_generalError() throws Exception {
+        when(bookService.createNewBook(any())).thenThrow(new RuntimeException());
+
+        CreateOrUpdateBookDto newBook = new CreateOrUpdateBookDto("Test Title 3", "Test Author 3");
+
+        mockMvc.perform(post("/api/v1/books/new")
+                .content(JsonConverterHelper.asJsonString(newBook))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+
+        verify(bookService, times(1)).createNewBook(any());
     }
 
     @Test
@@ -179,6 +233,7 @@ class BookControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
 
+        verify(bookService, times(1)).isBookWithIdExists(anyLong());
         verify(bookService, times(1)).updateBookWithId(anyLong(), any());
     }
 
@@ -193,6 +248,7 @@ class BookControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound()).andReturn();
 
+        verify(bookService, times(1)).isBookWithIdExists(anyLong());
         verify(bookService, times(0)).updateBookWithId(anyLong(), any());
     }
 
@@ -208,6 +264,7 @@ class BookControllerTest {
 
         assertEquals("", result.getResponse().getContentAsString());
 
+        verify(bookService, times(0)).isBookWithIdExists(anyLong());
         verify(bookService, times(0)).updateBookWithId(anyLong(), any());
     }
 
@@ -221,9 +278,28 @@ class BookControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest()).andReturn();
 
+        verify(bookService, times(0)).isBookWithIdExists(anyLong());
         verify(bookService, times(0)).updateBookWithId(anyLong(), any());
     }
 
+    @Test
+    void updateBook_generalError() throws Exception {
+        when(bookService.isBookWithIdExists(anyLong())).thenReturn(true);
+
+        CreateOrUpdateBookDto newBook = new CreateOrUpdateBookDto("Test Title 3", "Test Author 3");
+        BookDto updatedBookDto = new BookDto(bookDto1.getId(), newBook.getTitle(), newBook.getAuthor());
+
+        when(bookService.updateBookWithId(anyLong(), any())).thenThrow(new RuntimeException());
+
+        mockMvc.perform(put("/api/v1/books/1")
+                .content(JsonConverterHelper.asJsonString(newBook))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+
+        verify(bookService, times(1)).isBookWithIdExists(anyLong());
+        verify(bookService, times(1)).updateBookWithId(anyLong(), any());
+    }
 
     @Test
     void deleteBook_validId() throws Exception {
@@ -233,6 +309,7 @@ class BookControllerTest {
         mockMvc.perform(delete("/api/v1/books/1"))
                 .andExpect(status().isOk());
 
+        verify(bookService, times(1)).isBookWithIdExists(anyLong());
         verify(bookService, times(1)).deleteBookById(anyLong());
     }
 
@@ -243,8 +320,20 @@ class BookControllerTest {
         mockMvc.perform(delete("/api/v1/books/1337"))
                 .andExpect(status().isNotFound());
 
+        verify(bookService, times(1)).isBookWithIdExists(anyLong());
         verify(bookService, times(0)).deleteBookById(anyLong());
     }
 
+    @Test
+    void deleteBook_generalError() throws Exception {
+        when(bookService.isBookWithIdExists(anyLong())).thenReturn(true);
+        when(bookService.deleteBookById(anyLong())).thenThrow(new RuntimeException());
+
+        mockMvc.perform(delete("/api/v1/books/1"))
+                .andExpect(status().isInternalServerError());
+
+        verify(bookService, times(1)).isBookWithIdExists(anyLong());
+        verify(bookService, times(1)).deleteBookById(anyLong());
+    }
 
 }

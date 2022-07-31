@@ -229,6 +229,35 @@ class BookServiceImplTest {
 //    }
 
     @Test
-    void isBookWithIdExists() {
+    void isBookWithIdExists_exists() {
+        when(bookRepository.existsById(anyLong())).thenReturn(true);
+
+        boolean result = bookService.isBookWithIdExists(1L);
+
+        assertTrue(result);
+
+        verify(bookRepository, times(1)).existsById(anyLong());
+    }
+
+    @Test
+    void isBookWithIdExists_notExists() {
+        when(bookRepository.existsById(anyLong())).thenReturn(false);
+
+        boolean result = bookService.isBookWithIdExists(1337L);
+
+        assertFalse(result);
+
+        verify(bookRepository, times(1)).existsById(anyLong());
+    }
+
+    @Test
+    void isBookWithIdExists_generalError() {
+        when(bookRepository.existsById(anyLong())).thenThrow(new RuntimeException());
+
+        assertThrows(Exception.class, () -> {
+            boolean result = bookService.isBookWithIdExists(1337L);
+        });
+
+        verify(bookRepository, times(1)).existsById(anyLong());
     }
 }

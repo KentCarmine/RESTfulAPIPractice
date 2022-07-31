@@ -6,6 +6,7 @@ import com.kentcarmine.restapipractice.converter.BookToBookDtoConverter;
 import com.kentcarmine.restapipractice.converter.CreateBookDtoToBookConverter;
 import com.kentcarmine.restapipractice.dto.BookDto;
 import com.kentcarmine.restapipractice.dto.CreateOrUpdateBookDto;
+import com.kentcarmine.restapipractice.exception.BookNotFoundException;
 import com.kentcarmine.restapipractice.model.Book;
 import com.kentcarmine.restapipractice.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
