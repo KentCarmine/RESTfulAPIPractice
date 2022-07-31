@@ -61,32 +61,18 @@ public class BookController {
     // Create book
     @PostMapping("/new")
     public BookDto createNewBook(@Valid @RequestBody CreateOrUpdateBookDto newBook) {
-        if (newBook == null) {
-            throw new InvalidBookInputException(); // redundant, but can be updated later if needed for validations
-        }
-
         return bookService.createNewBook(newBook);
     }
 
     // Update book
     @PutMapping("/{id}")
     public BookDto updateBook(@PathVariable Long id, @Valid @RequestBody(required = false) CreateOrUpdateBookDto updateBook) {
-        if (!bookService.isBookWithIdExists(id)) {
-            throw new BookNotFoundException(id);
-        } else if (updateBook == null) {
-            throw new InvalidBookInputException();
-        }
-
         return bookService.updateBookWithId(id, updateBook);
     }
 
     // Delete book by id
     @DeleteMapping("/{id}")
     public BookDto deleteBook(@PathVariable Long id) {
-        if (!bookService.isBookWithIdExists(id)) {
-            throw new BookNotFoundException(id);
-        }
-
         return bookService.deleteBookById(id);
     }
 

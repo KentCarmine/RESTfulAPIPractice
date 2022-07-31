@@ -6,6 +6,8 @@ import com.kentcarmine.restapipractice.converter.BookToBookDtoConverter;
 import com.kentcarmine.restapipractice.converter.CreateBookDtoToBookConverter;
 import com.kentcarmine.restapipractice.dto.BookDto;
 import com.kentcarmine.restapipractice.dto.CreateOrUpdateBookDto;
+import com.kentcarmine.restapipractice.exception.BookNotFoundException;
+import com.kentcarmine.restapipractice.exception.InvalidBookInputException;
 import com.kentcarmine.restapipractice.model.Book;
 import com.kentcarmine.restapipractice.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +67,13 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookDto updateBookWithId(Long id, CreateOrUpdateBookDto bookDto) {
         Book existingBook = bookRepository.findBookById(id);
+
+        if (existingBook == null) {
+            throw new BookNotFoundException(id);
+        } else if (bookDto == null) {
+            throw new InvalidBookInputException();
+        }
+
         existingBook.setTitle(bookDto.getTitle());
         existingBook.setAuthor(bookDto.getAuthor());
 
@@ -73,6 +82,10 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto deleteBookById(Long id) {
+        if (!isBookWithIdExists(id)) {
+            throw new BookNotFoundException(id);
+        }
+
         BookDto deleted = getBookById(id);
         bookRepository.deleteById(id);
         return deleted;
