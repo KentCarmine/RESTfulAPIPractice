@@ -4,6 +4,7 @@ import com.kentcarmine.restapipractice.dto.BookDto;
 import com.kentcarmine.restapipractice.dto.CreateOrUpdateBookDto;
 import com.kentcarmine.restapipractice.exception.BookNotFoundException;
 import com.kentcarmine.restapipractice.exception.InvalidBookInputException;
+import com.kentcarmine.restapipractice.helper.JsonConverterHelper;
 import com.kentcarmine.restapipractice.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -60,18 +61,21 @@ public class BookController {
 
     // Create book
     @PostMapping("/new")
+    @ResponseStatus(HttpStatus.CREATED)
     public BookDto createNewBook(@Valid @RequestBody CreateOrUpdateBookDto newBook) {
         return bookService.createNewBook(newBook);
     }
 
     // Update book
     @PutMapping("/{id}")
-    public BookDto updateBook(@PathVariable Long id, @Valid @RequestBody(required = false) CreateOrUpdateBookDto updateBook) {
+    @ResponseStatus(HttpStatus.OK)
+    public BookDto updateBook(@PathVariable Long id, @Valid @RequestBody CreateOrUpdateBookDto updateBook) {
         return bookService.updateBookWithId(id, updateBook);
     }
 
     // Delete book by id
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public BookDto deleteBook(@PathVariable Long id) {
         return bookService.deleteBookById(id);
     }
@@ -90,14 +94,16 @@ public class BookController {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
+
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        return errors;
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 }
