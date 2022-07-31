@@ -1,13 +1,10 @@
 package com.kentcarmine.restapipractice.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kentcarmine.restapipractice.controller.errorhandling.CustomRestExceptionHandler;
 import com.kentcarmine.restapipractice.dto.BookDto;
 import com.kentcarmine.restapipractice.dto.CreateOrUpdateBookDto;
-import com.kentcarmine.restapipractice.exception.InvalidBookInputException;
 import com.kentcarmine.restapipractice.helper.JsonConverterHelper;
 import com.kentcarmine.restapipractice.model.Book;
-import com.kentcarmine.restapipractice.repository.BookRepository;
 import com.kentcarmine.restapipractice.service.BookService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +17,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;

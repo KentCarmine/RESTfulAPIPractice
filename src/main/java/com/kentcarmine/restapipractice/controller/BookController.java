@@ -3,19 +3,12 @@ package com.kentcarmine.restapipractice.controller;
 import com.kentcarmine.restapipractice.dto.BookDto;
 import com.kentcarmine.restapipractice.dto.CreateOrUpdateBookDto;
 import com.kentcarmine.restapipractice.exception.BookNotFoundException;
-import com.kentcarmine.restapipractice.exception.InvalidBookInputException;
-import com.kentcarmine.restapipractice.helper.JsonConverterHelper;
 import com.kentcarmine.restapipractice.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -87,31 +80,4 @@ public class BookController {
 
         return bookService.deleteBookById(id);
     }
-
-//    @ExceptionHandler(BookNotFoundException.class)
-//    @ResponseStatus(HttpStatus.NOT_FOUND)
-//    public ResponseEntity<String> handleBookNotFoundException(BookNotFoundException bnfe) {
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(bnfe.getMessage());
-//    }
-//
-//    @ExceptionHandler(InvalidBookInputException.class)
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    public ResponseEntity<String> handleInvalidBookInputException(InvalidBookInputException e) {
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-//    }
-//
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public ResponseEntity<Map<String, String>> handleValidationExceptions(
-//            MethodArgumentNotValidException ex) {
-//
-//        Map<String, String> errors = new HashMap<>();
-//        ex.getBindingResult().getAllErrors().forEach((error) -> {
-//            String fieldName = ((FieldError) error).getField();
-//            String errorMessage = error.getDefaultMessage();
-//            errors.put(fieldName, errorMessage);
-//        });
-//
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-//    }
 }
