@@ -1,7 +1,7 @@
 package com.kentcarmine.restapipractice.service;
 
 import com.kentcarmine.restapipractice.dto.BookDto;
-import com.kentcarmine.restapipractice.dto.CreateBookDto;
+import com.kentcarmine.restapipractice.dto.CreateOrUpdateBookDto;
 
 import java.util.Set;
 
@@ -15,9 +15,11 @@ public interface BookService {
 
     BookDto getBookById(Long id);
 
-    BookDto createNewBook(CreateBookDto createBookDto);
+    BookDto createNewBook(CreateOrUpdateBookDto createOrUpdateBookDto);
 
     BookDto deleteBookById(Long id);
 
     boolean isBookWithIdExists(Long id);
+
+    BookDto updateBookWithId(Long id, CreateOrUpdateBookDto bookDto);
 }

@@ -1,7 +1,7 @@
 package com.kentcarmine.restapipractice.controller;
 
 import com.kentcarmine.restapipractice.dto.BookDto;
-import com.kentcarmine.restapipractice.dto.CreateBookDto;
+import com.kentcarmine.restapipractice.dto.CreateOrUpdateBookDto;
 import com.kentcarmine.restapipractice.exception.BookNotFoundException;
 import com.kentcarmine.restapipractice.exception.InvalidBookInputException;
 import com.kentcarmine.restapipractice.service.BookService;
@@ -29,7 +29,7 @@ public class BookController {
         BookDto result = bookService.getBookById(id);
 
         if (result == null) {
-            throw new BookNotFoundException();
+            throw new BookNotFoundException(id);
         }
 
         return result;
@@ -55,21 +55,31 @@ public class BookController {
 
     // Create book
     @PostMapping("/new")
-    public BookDto createNewBook(@RequestBody CreateBookDto newBook) {
+    public BookDto createNewBook(@RequestBody CreateOrUpdateBookDto newBook) {
         if (newBook == null) {
-            throw new InvalidBookInputException();
+            throw new InvalidBookInputException(); // redundant, but can be updated later if needed for validations
         }
 
         return bookService.createNewBook(newBook);
     }
 
     // Update book
+    @PutMapping("/{id}")
+    public BookDto updateBook(@PathVariable Long id, @RequestBody(required = false) CreateOrUpdateBookDto updateBook) {
+        if (!bookService.isBookWithIdExists(id)) {
+            throw new BookNotFoundException(id);
+        } else if (updateBook == null) {
+            throw new InvalidBookInputException();
+        }
+
+        return bookService.updateBookWithId(id, updateBook);
+    }
 
     // Delete book by id
     @DeleteMapping("/{id}")
     public BookDto deleteBook(@PathVariable Long id) {
         if (!bookService.isBookWithIdExists(id)) {
-            throw new BookNotFoundException();
+            throw new BookNotFoundException(id);
         }
 
         return bookService.deleteBookById(id);

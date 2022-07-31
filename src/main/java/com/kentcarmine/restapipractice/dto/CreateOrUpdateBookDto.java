@@ -1,16 +1,16 @@
 package com.kentcarmine.restapipractice.dto;
 
-public class CreateBookDto {
+public class CreateOrUpdateBookDto {
 
     private String title;
     private String author;
 
-    public CreateBookDto() {
+    public CreateOrUpdateBookDto() {
         this.title = null;
         this.author = null;
     }
 
-    public CreateBookDto(String title, String author) {
+    public CreateOrUpdateBookDto(String title, String author) {
         this.title = title;
         this.author = author;
     }

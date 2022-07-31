@@ -5,7 +5,7 @@ import com.kentcarmine.restapipractice.converter.BookListToBookDtoSetConverter;
 import com.kentcarmine.restapipractice.converter.BookToBookDtoConverter;
 import com.kentcarmine.restapipractice.converter.CreateBookDtoToBookConverter;
 import com.kentcarmine.restapipractice.dto.BookDto;
-import com.kentcarmine.restapipractice.dto.CreateBookDto;
+import com.kentcarmine.restapipractice.dto.CreateOrUpdateBookDto;
 import com.kentcarmine.restapipractice.model.Book;
 import com.kentcarmine.restapipractice.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,11 +55,20 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookDto createNewBook(CreateBookDto createBookDto) {
-        Book newBook = createBookDtoToBookConverter.convert(createBookDto);
+    public BookDto createNewBook(CreateOrUpdateBookDto createOrUpdateBookDto) {
+        Book newBook = createBookDtoToBookConverter.convert(createOrUpdateBookDto);
         newBook = bookRepository.save(newBook);
 
         return bookToBookDtoConverter.convert(newBook);
+    }
+
+    @Override
+    public BookDto updateBookWithId(Long id, CreateOrUpdateBookDto bookDto) {
+        Book existingBook = bookRepository.findBookById(id);
+        existingBook.setTitle(bookDto.getTitle());
+        existingBook.setAuthor(bookDto.getAuthor());
+
+        return bookToBookDtoConverter.convert(bookRepository.save(existingBook));
     }
 
     @Override
