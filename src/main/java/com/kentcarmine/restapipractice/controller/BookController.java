@@ -5,12 +5,14 @@ import com.kentcarmine.restapipractice.dto.CreateOrUpdateBookDto;
 import com.kentcarmine.restapipractice.exception.BookNotFoundException;
 import com.kentcarmine.restapipractice.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.Set;
 
+@ConditionalOnExpression("${api.controller.v1.enabled:false}")
 @RestController
 @RequestMapping("/api/v1/books")
 public class BookController {
