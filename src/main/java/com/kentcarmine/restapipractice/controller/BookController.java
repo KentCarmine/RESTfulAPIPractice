@@ -70,6 +70,10 @@ public class BookController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public BookDto updateBook(@PathVariable Long id, @Valid @RequestBody CreateOrUpdateBookDto updateBook) {
+        if (!bookService.isBookWithIdExists(id)) {
+            throw new BookNotFoundException(id);
+        }
+
         return bookService.updateBookWithId(id, updateBook);
     }
 
@@ -77,33 +81,37 @@ public class BookController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public BookDto deleteBook(@PathVariable Long id) {
+        if (!bookService.isBookWithIdExists(id)) {
+            throw new BookNotFoundException(id);
+        }
+
         return bookService.deleteBookById(id);
     }
 
-    @ExceptionHandler(BookNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<String> handleBookNotFoundException(BookNotFoundException bnfe) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(bnfe.getMessage());
-    }
-
-    @ExceptionHandler(InvalidBookInputException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleInvalidBookInputException(InvalidBookInputException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
-
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-    }
+//    @ExceptionHandler(BookNotFoundException.class)
+//    @ResponseStatus(HttpStatus.NOT_FOUND)
+//    public ResponseEntity<String> handleBookNotFoundException(BookNotFoundException bnfe) {
+//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(bnfe.getMessage());
+//    }
+//
+//    @ExceptionHandler(InvalidBookInputException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public ResponseEntity<String> handleInvalidBookInputException(InvalidBookInputException e) {
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+//    }
+//
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ResponseEntity<Map<String, String>> handleValidationExceptions(
+//            MethodArgumentNotValidException ex) {
+//
+//        Map<String, String> errors = new HashMap<>();
+//        ex.getBindingResult().getAllErrors().forEach((error) -> {
+//            String fieldName = ((FieldError) error).getField();
+//            String errorMessage = error.getDefaultMessage();
+//            errors.put(fieldName, errorMessage);
+//        });
+//
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+//    }
 }

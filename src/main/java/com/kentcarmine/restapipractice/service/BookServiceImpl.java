@@ -68,11 +68,11 @@ public class BookServiceImpl implements BookService {
     public BookDto updateBookWithId(Long id, CreateOrUpdateBookDto bookDto) {
         Book existingBook = bookRepository.findBookById(id);
 
-        if (existingBook == null) {
-            throw new BookNotFoundException(id);
-        } else if (bookDto == null) {
-            throw new InvalidBookInputException();
-        }
+//        if (existingBook == null) {
+//            throw new BookNotFoundException(id);
+//        } else if (bookDto == null) {
+//            throw new InvalidBookInputException();
+//        }
 
         existingBook.setTitle(bookDto.getTitle());
         existingBook.setAuthor(bookDto.getAuthor());
@@ -82,9 +82,9 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto deleteBookById(Long id) {
-        if (!isBookWithIdExists(id)) {
-            throw new BookNotFoundException(id);
-        }
+//        if (!isBookWithIdExists(id)) {
+//            throw new BookNotFoundException(id);
+//        }
 
         BookDto deleted = getBookById(id);
         bookRepository.deleteById(id);

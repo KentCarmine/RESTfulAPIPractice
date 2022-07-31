@@ -1,6 +1,7 @@
 package com.kentcarmine.restapipractice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kentcarmine.restapipractice.controller.errorhandling.CustomRestExceptionHandler;
 import com.kentcarmine.restapipractice.dto.BookDto;
 import com.kentcarmine.restapipractice.dto.CreateOrUpdateBookDto;
 import com.kentcarmine.restapipractice.exception.InvalidBookInputException;
@@ -61,7 +62,9 @@ class BookControllerTest {
         bookDtoSet.add(bookDto2);
 
 
-        mockMvc = MockMvcBuilders.standaloneSetup(bookController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(bookController)
+                .setControllerAdvice(new CustomRestExceptionHandler())
+                .build();
     }
 
     @Test
@@ -166,6 +169,7 @@ class BookControllerTest {
 
     @Test
     void updateBook_validInput() throws Exception {
+        when(bookService.isBookWithIdExists(anyLong())).thenReturn(true);
         CreateOrUpdateBookDto newBook = new CreateOrUpdateBookDto("Test Title 3", "Test Author 3");
         BookDto updatedBookDto = new BookDto(bookDto1.getId(), newBook.getTitle(), newBook.getAuthor());
 
@@ -177,26 +181,21 @@ class BookControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
 
-        assertTrue(result.getResponse().getContentAsString().contains(newBook.getTitle()));
-        assertTrue(result.getResponse().getContentAsString().contains(newBook.getAuthor()));
-        assertTrue(result.getResponse().getContentAsString().contains(updatedBookDto.getId().toString()));
-
         verify(bookService, times(1)).updateBookWithId(anyLong(), any());
     }
 
     @Test
     void updateBook_invalidId() throws Exception {
+        when(bookService.isBookWithIdExists(anyLong())).thenReturn(false);
         CreateOrUpdateBookDto newBook = new CreateOrUpdateBookDto("Test Title 3", "Test Author 3");
-        BookDto updatedBookDto = new BookDto(1337L, newBook.getTitle(), newBook.getAuthor());
-        when(bookService.updateBookWithId(anyLong(), any())).thenThrow(new InvalidBookInputException());
 
         MvcResult result =  mockMvc.perform(put("/api/v1/books/1337")
                 .content(JsonConverterHelper.asJsonString(newBook))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest()).andReturn();
+                .andExpect(status().isNotFound()).andReturn();
 
-        verify(bookService, times(1)).updateBookWithId(anyLong(), any());
+        verify(bookService, times(0)).updateBookWithId(anyLong(), any());
     }
 
     @Test
@@ -224,15 +223,13 @@ class BookControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest()).andReturn();
 
-        assertTrue(result.getResponse().getContentAsString().contains("author cannot be blank"));
-        assertTrue(result.getResponse().getContentAsString().contains("title cannot be blank"));
-
         verify(bookService, times(0)).updateBookWithId(anyLong(), any());
     }
 
 
     @Test
     void deleteBook_validId() throws Exception {
+        when(bookService.isBookWithIdExists(anyLong())).thenReturn(true);
         when(bookService.deleteBookById(anyLong())).thenReturn(bookDto1);
 
         mockMvc.perform(delete("/api/v1/books/1"))
@@ -243,12 +240,12 @@ class BookControllerTest {
 
     @Test
     void deleteBook_invalidId() throws Exception {
-        when(bookService.deleteBookById(anyLong())).thenThrow(new InvalidBookInputException());
+        when(bookService.isBookWithIdExists(anyLong())).thenReturn(false);
 
         mockMvc.perform(delete("/api/v1/books/1337"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
 
-        verify(bookService, times(1)).deleteBookById(anyLong());
+        verify(bookService, times(0)).deleteBookById(anyLong());
     }
 
 
