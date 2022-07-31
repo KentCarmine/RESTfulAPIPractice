@@ -46,8 +46,11 @@ class BookControllerTest {
 
     MockMvc mockMvc;
 
+    String baseApiUrl;
+
     @BeforeEach
     void setUp() {
+        baseApiUrl = configBaseApiUrl();
 
         bookList = new LinkedList<>();
         bookList.add(new Book(1L, "Title 1", "Author 1"));
@@ -59,16 +62,23 @@ class BookControllerTest {
         bookDtoSet.add(bookDto1);
         bookDtoSet.add(bookDto2);
 
+        setupMockMvc();
+    }
 
+    protected void setupMockMvc() {
         mockMvc = MockMvcBuilders.standaloneSetup(bookController)
                 .setControllerAdvice(new CustomRestExceptionHandler())
                 .build();
     }
 
+    protected String configBaseApiUrl() {
+        return "/api/v1/books/";
+    }
+
     @Test
     void getBookById_existingId() throws Exception {
         when(bookService.getBookById(any())).thenReturn(bookDto1);
-        mockMvc.perform(get("/api/v1/books/1"))
+        mockMvc.perform(get(baseApiUrl + 1))
                 .andExpect(status().isOk());
 
         verify(bookService, times(1)).getBookById(any());
@@ -77,7 +87,7 @@ class BookControllerTest {
     @Test
     void getBookById_noSuchId() throws Exception {
         when(bookService.getBookById(any())).thenReturn(null);
-        mockMvc.perform(get("/api/v1/books/1"))
+        mockMvc.perform(get(baseApiUrl + 1))
                 .andExpect(status().isNotFound());
 
         verify(bookService, times(1)).getBookById(any());
@@ -86,7 +96,7 @@ class BookControllerTest {
     @Test
     void getBookById_generalError() throws Exception {
         when(bookService.getBookById(any())).thenThrow(new RuntimeException());
-        mockMvc.perform(get("/api/v1/books/1"))
+        mockMvc.perform(get(baseApiUrl + 1))
                 .andExpect(status().isInternalServerError());
 
         verify(bookService, times(1)).getBookById(any());
@@ -95,7 +105,7 @@ class BookControllerTest {
     @Test
     void getAllBooks_success() throws Exception {
         when(bookService.getAllBooks()).thenReturn(bookDtoSet);
-        mockMvc.perform(get("/api/v1/books/"))
+        mockMvc.perform(get(baseApiUrl))
                 .andExpect(status().isOk());
         verify(bookService, times(1)).getAllBooks();
     }
@@ -103,7 +113,7 @@ class BookControllerTest {
     @Test
     void getAllBooks_generalError() throws Exception {
         when(bookService.getAllBooks()).thenThrow(new RuntimeException());
-        mockMvc.perform(get("/api/v1/books/"))
+        mockMvc.perform(get(baseApiUrl))
                 .andExpect(status().isInternalServerError());
 
         verify(bookService, times(1)).getAllBooks();
@@ -112,7 +122,7 @@ class BookControllerTest {
     @Test
     void getAllBooksByTitle_existingTitle() throws Exception {
         when(bookService.getAllBooksByTitle(any())).thenReturn(Set.of(bookDto1));
-        mockMvc.perform(get("/api/v1/books/title/" + bookDto1.getTitle()))
+        mockMvc.perform(get(baseApiUrl + "title/" + bookDto1.getTitle()))
                 .andExpect(status().isOk());
 
         verify(bookService, times(1)).getAllBooksByTitle(anyString());
@@ -121,7 +131,7 @@ class BookControllerTest {
     @Test
     void getAllBooksByTitle_noSuchTitle() throws Exception {
         when(bookService.getAllBooksByTitle(any())).thenReturn(Set.of());
-        mockMvc.perform(get("/api/v1/books/title/argleblargle"))
+        mockMvc.perform(get(baseApiUrl + "title/argleblargle"))
                 .andExpect(status().isOk());
 
         verify(bookService, times(1)).getAllBooksByTitle(anyString());
@@ -130,7 +140,7 @@ class BookControllerTest {
     @Test
     void getAllBooksByTitle_generalError() throws Exception {
         when(bookService.getAllBooksByTitle(any())).thenThrow(new RuntimeException());
-        mockMvc.perform(get("/api/v1/books/title/" + bookDto1.getTitle()))
+        mockMvc.perform(get(baseApiUrl + "title/" + bookDto1.getTitle()))
                 .andExpect(status().isInternalServerError());
 
         verify(bookService, times(1)).getAllBooksByTitle(anyString());
@@ -139,7 +149,7 @@ class BookControllerTest {
     @Test
     void getAllBooksByAuthor_existingAuthor() throws Exception {
         when(bookService.getAllBooksByAuthor(any())).thenReturn(Set.of(bookDto1));
-        mockMvc.perform(get("/api/v1/books/author/" + bookDto1.getAuthor()))
+        mockMvc.perform(get(baseApiUrl + "author/" + bookDto1.getAuthor()))
                 .andExpect(status().isOk());
 
         verify(bookService, times(1)).getAllBooksByAuthor(anyString());
@@ -148,7 +158,7 @@ class BookControllerTest {
     @Test
     void getAllBooksByAuthor_noSuchAuthor() throws Exception {
         when(bookService.getAllBooksByAuthor(any())).thenReturn(Set.of());
-        mockMvc.perform(get("/api/v1/books/author/fargle"))
+        mockMvc.perform(get(baseApiUrl + "author/fargle"))
                 .andExpect(status().isOk());
 
         verify(bookService, times(1)).getAllBooksByAuthor(anyString());
@@ -157,7 +167,7 @@ class BookControllerTest {
     @Test
     void getAllBooksByAuthor_generalError() throws Exception {
         when(bookService.getAllBooksByAuthor(any())).thenThrow(new RuntimeException());
-        mockMvc.perform(get("/api/v1/books/author/" + bookDto1.getAuthor()))
+        mockMvc.perform(get(baseApiUrl + "author/" + bookDto1.getAuthor()))
                 .andExpect(status().isInternalServerError());
 
         verify(bookService, times(1)).getAllBooksByAuthor(anyString());
@@ -169,7 +179,7 @@ class BookControllerTest {
 
         CreateOrUpdateBookDto newBook = new CreateOrUpdateBookDto("Test Title 3", "Test Author 3");
 
-        mockMvc.perform(post("/api/v1/books/new")
+        mockMvc.perform(post(baseApiUrl + "new")
                 .content(JsonConverterHelper.asJsonString(newBook))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -182,7 +192,7 @@ class BookControllerTest {
     void createNewBook_nullBook() throws Exception {
         CreateOrUpdateBookDto newBook = null;
 
-        mockMvc.perform(post("/api/v1/books/new")
+        mockMvc.perform(post(baseApiUrl + "new")
                 .content(JsonConverterHelper.asJsonString(newBook))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -195,7 +205,7 @@ class BookControllerTest {
     void createNewBook_invalidBook() throws Exception {
         CreateOrUpdateBookDto newBook = new CreateOrUpdateBookDto(null, "");
 
-        mockMvc.perform(post("/api/v1/books/new")
+        mockMvc.perform(post(baseApiUrl + "new")
                 .content(JsonConverterHelper.asJsonString(newBook))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -210,7 +220,7 @@ class BookControllerTest {
 
         CreateOrUpdateBookDto newBook = new CreateOrUpdateBookDto("Test Title 3", "Test Author 3");
 
-        mockMvc.perform(post("/api/v1/books/new")
+        mockMvc.perform(post(baseApiUrl + "new")
                 .content(JsonConverterHelper.asJsonString(newBook))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -227,7 +237,7 @@ class BookControllerTest {
 
         when(bookService.updateBookWithId(anyLong(), any())).thenReturn(updatedBookDto);
 
-        MvcResult result =  mockMvc.perform(put("/api/v1/books/1")
+        MvcResult result =  mockMvc.perform(put(baseApiUrl + 1)
                 .content(JsonConverterHelper.asJsonString(newBook))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -242,7 +252,7 @@ class BookControllerTest {
         when(bookService.isBookWithIdExists(anyLong())).thenReturn(false);
         CreateOrUpdateBookDto newBook = new CreateOrUpdateBookDto("Test Title 3", "Test Author 3");
 
-        MvcResult result =  mockMvc.perform(put("/api/v1/books/1337")
+        MvcResult result =  mockMvc.perform(put(baseApiUrl + 1337)
                 .content(JsonConverterHelper.asJsonString(newBook))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -256,7 +266,7 @@ class BookControllerTest {
     void updateBook_nullBook() throws Exception {
         CreateOrUpdateBookDto newBook = null;
 
-        MvcResult result =  mockMvc.perform(put("/api/v1/books/1")
+        MvcResult result =  mockMvc.perform(put(baseApiUrl + 1)
                 .content(JsonConverterHelper.asJsonString(newBook))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -272,7 +282,7 @@ class BookControllerTest {
     void updateBook_invalidBook() throws Exception {
         CreateOrUpdateBookDto newBook = new CreateOrUpdateBookDto("", null);
 
-        MvcResult result =  mockMvc.perform(put("/api/v1/books/1")
+        MvcResult result =  mockMvc.perform(put(baseApiUrl + 1)
                 .content(JsonConverterHelper.asJsonString(newBook))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -291,7 +301,7 @@ class BookControllerTest {
 
         when(bookService.updateBookWithId(anyLong(), any())).thenThrow(new RuntimeException());
 
-        mockMvc.perform(put("/api/v1/books/1")
+        mockMvc.perform(put(baseApiUrl + 1)
                 .content(JsonConverterHelper.asJsonString(newBook))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -306,7 +316,7 @@ class BookControllerTest {
         when(bookService.isBookWithIdExists(anyLong())).thenReturn(true);
         when(bookService.deleteBookById(anyLong())).thenReturn(bookDto1);
 
-        mockMvc.perform(delete("/api/v1/books/1"))
+        mockMvc.perform(delete(baseApiUrl + 1))
                 .andExpect(status().isOk());
 
         verify(bookService, times(1)).isBookWithIdExists(anyLong());
@@ -317,7 +327,7 @@ class BookControllerTest {
     void deleteBook_invalidId() throws Exception {
         when(bookService.isBookWithIdExists(anyLong())).thenReturn(false);
 
-        mockMvc.perform(delete("/api/v1/books/1337"))
+        mockMvc.perform(delete(baseApiUrl + 1337))
                 .andExpect(status().isNotFound());
 
         verify(bookService, times(1)).isBookWithIdExists(anyLong());
@@ -329,7 +339,7 @@ class BookControllerTest {
         when(bookService.isBookWithIdExists(anyLong())).thenReturn(true);
         when(bookService.deleteBookById(anyLong())).thenThrow(new RuntimeException());
 
-        mockMvc.perform(delete("/api/v1/books/1"))
+        mockMvc.perform(delete(baseApiUrl + 1))
                 .andExpect(status().isInternalServerError());
 
         verify(bookService, times(1)).isBookWithIdExists(anyLong());
