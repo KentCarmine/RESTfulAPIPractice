@@ -8,8 +8,13 @@ import com.kentcarmine.restapipractice.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -55,7 +60,7 @@ public class BookController {
 
     // Create book
     @PostMapping("/new")
-    public BookDto createNewBook(@RequestBody CreateOrUpdateBookDto newBook) {
+    public BookDto createNewBook(@Valid @RequestBody CreateOrUpdateBookDto newBook) {
         if (newBook == null) {
             throw new InvalidBookInputException(); // redundant, but can be updated later if needed for validations
         }
@@ -65,7 +70,7 @@ public class BookController {
 
     // Update book
     @PutMapping("/{id}")
-    public BookDto updateBook(@PathVariable Long id, @RequestBody(required = false) CreateOrUpdateBookDto updateBook) {
+    public BookDto updateBook(@PathVariable Long id, @Valid @RequestBody(required = false) CreateOrUpdateBookDto updateBook) {
         if (!bookService.isBookWithIdExists(id)) {
             throw new BookNotFoundException(id);
         } else if (updateBook == null) {
@@ -95,5 +100,18 @@ public class BookController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleInvalidBookInputException(InvalidBookInputException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
     }
 }

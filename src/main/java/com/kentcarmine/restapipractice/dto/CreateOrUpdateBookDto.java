@@ -1,8 +1,17 @@
 package com.kentcarmine.restapipractice.dto;
 
+import com.sun.istack.NotNull;
+
+import javax.validation.constraints.NotBlank;
+
 public class CreateOrUpdateBookDto {
 
+    @NotNull
+    @NotBlank(message = "title cannot be blank")
     private String title;
+
+    @NotNull
+    @NotBlank(message = "author cannot be blank")
     private String author;
 
     public CreateOrUpdateBookDto() {

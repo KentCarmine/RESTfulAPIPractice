@@ -1,9 +1,12 @@
 package com.kentcarmine.restapipractice.model;
 
+import com.sun.istack.NotNull;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 public class Book {
@@ -12,7 +15,12 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotNull
+    @NotBlank(message = "title cannot be blank")
     private String title;
+
+    @NotNull
+    @NotBlank(message = "author cannot be blank")
     private String author;
 
     public Book() {
