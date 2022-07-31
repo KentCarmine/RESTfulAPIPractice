@@ -2,11 +2,9 @@ package com.kentcarmine.restapipractice.model;
 
 import com.sun.istack.NotNull;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Entity
 public class Book {
@@ -17,10 +15,14 @@ public class Book {
 
     @NotNull
     @NotBlank(message = "title cannot be blank")
+    @Column(nullable = false)
+    @Size(min = 1)
     private String title;
 
     @NotNull
     @NotBlank(message = "author cannot be blank")
+    @Column(nullable = false)
+    @Size(min = 1)
     private String author;
 
     public Book() {
