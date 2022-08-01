@@ -60,21 +60,24 @@ public class Bootstrap implements CommandLineRunner {
         Role userRole = roleRepository.save(new Role("USER"));
         Role adminRole = roleRepository.save(new Role("ADMIN"));
 
+        Authority readBooksAuthority = authorityRepository.save(new Authority("book.read"));
+        Authority createBookAuthority = authorityRepository.save(new Authority("book.create"));
+        Authority updateBookAuthority = authorityRepository.save(new Authority("book.update"));
+        Authority deleteBookAuthority = authorityRepository.save(new Authority("book.delete"));
+
+        // Extra (unused) granular permissions
         Authority readAllBooksAuthority = authorityRepository.save(new Authority("book.read.all"));
         Authority readBookByIdAuthority = authorityRepository.save(new Authority("book.read.byId"));
         Authority readBooksByTitleAuthority = authorityRepository.save(new Authority("book.read.byTitle"));
         Authority readBooksByAuthorAuthority = authorityRepository.save(new Authority("book.read.byAuthor"));
         Authority readBookExistsById = authorityRepository.save(new Authority("book.read.verifyExistsById"));
-        Authority createBookAuthority = authorityRepository.save(new Authority("book.create"));
-        Authority updateBookAuthority = authorityRepository.save(new Authority("book.update"));
-        Authority deleteBookAuthority = authorityRepository.save(new Authority("book.delete"));
 
-        adminRole.setAuthorities(new HashSet<>(Set.of(readAllBooksAuthority, readBookByIdAuthority,
+        adminRole.setAuthorities(new HashSet<>(Set.of(readBooksAuthority, readAllBooksAuthority, readBookByIdAuthority,
                 readBooksByTitleAuthority, readBooksByAuthorAuthority, readBookExistsById, createBookAuthority,
                 updateBookAuthority, deleteBookAuthority)));
         roleRepository.save(adminRole);
 
-        userRole.setAuthorities(new HashSet<>(Set.of(readAllBooksAuthority, readBookByIdAuthority,
+        userRole.setAuthorities(new HashSet<>(Set.of(readBooksAuthority, readAllBooksAuthority, readBookByIdAuthority,
                 readBooksByTitleAuthority, readBooksByAuthorAuthority, readBookExistsById)));
         roleRepository.save(userRole);
 
@@ -86,5 +89,10 @@ public class Bootstrap implements CommandLineRunner {
         adminUser.addRole(adminRole);
         adminUser.addRole(userRole);
         adminUser = userRepository.save(adminUser);
+    }
+
+    public void resetBooks() {
+        bookRepository.deleteAll();
+        setupBooks();
     }
 }

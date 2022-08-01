@@ -4,6 +4,7 @@ import com.kentcarmine.restapipractice.controller.errorhandling.CustomRestExcept
 import com.kentcarmine.restapipractice.dto.BookDto;
 import com.kentcarmine.restapipractice.dto.CreateOrUpdateBookDto;
 import com.kentcarmine.restapipractice.helper.JsonConverterHelper;
+import com.kentcarmine.restapipractice.helper.security.AuthenticationAnonymousVerificationHelper;
 import com.kentcarmine.restapipractice.model.Book;
 import com.kentcarmine.restapipractice.service.BookService;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,7 +68,7 @@ class BookControllerTest {
 
     protected void setupMockMvc() {
         mockMvc = MockMvcBuilders.standaloneSetup(bookController)
-                .setControllerAdvice(new CustomRestExceptionHandler())
+                .setControllerAdvice(new CustomRestExceptionHandler(new AuthenticationAnonymousVerificationHelper()))
                 .build();
     }
 

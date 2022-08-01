@@ -25,6 +25,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return CustomPasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+//        http.csrf().disable(); // TODO: For Dev only
+//
+//        http
+//                .authorizeRequests(authorize -> {
+//                    authorize
+//                            .antMatchers("/api/v1/**").permitAll()
+//                            .antMatchers("/h2-console/**").permitAll(); // TODO: FOR DEV ONLY!
+//                })
+//                .authorizeRequests()
+//                .anyRequest().authenticated()
+//                .and()
+//                .httpBasic();
+////                .and()
+////                .exceptionHandling().accessDeniedHandler(accessDeniedHandler());
+//
+//        // TODO: FOR DEV ONLY!
+//        // H2 Console Config
+//        http.headers().frameOptions().sameOrigin();
+//    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable(); // TODO: For Dev only
@@ -32,13 +54,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests(authorize -> {
                     authorize
-                            .antMatchers("**").permitAll()
+                            .antMatchers("/api/v1/**").permitAll()
                             .antMatchers("/h2-console/**").permitAll(); // TODO: FOR DEV ONLY!
                 })
-                .authorizeRequests()
-                .anyRequest().authenticated()
-                .and()
-                .formLogin().and()
+//                .authorizeRequests().anyRequest().authenticated().and()
                 .httpBasic();
 
         // TODO: FOR DEV ONLY!

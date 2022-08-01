@@ -1,6 +1,7 @@
 package com.kentcarmine.restapipractice.controller;
 
 import com.kentcarmine.restapipractice.controller.errorhandling.CustomRestExceptionHandler;
+import com.kentcarmine.restapipractice.helper.security.AuthenticationAnonymousVerificationHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,7 +23,7 @@ public class BookControllerV2Test extends BookControllerTest {
 
     protected void setupMockMvc() {
         mockMvc = MockMvcBuilders.standaloneSetup(bookControllerV2)
-                .setControllerAdvice(new CustomRestExceptionHandler())
+                .setControllerAdvice(new CustomRestExceptionHandler(new AuthenticationAnonymousVerificationHelper()))
                 .build();
     }
 

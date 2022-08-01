@@ -2,15 +2,22 @@ package com.kentcarmine.restapipractice.controller.errorhandling;
 
 import com.kentcarmine.restapipractice.dto.error.ApiError;
 import com.kentcarmine.restapipractice.exception.BookNotFoundException;
+import com.kentcarmine.restapipractice.helper.security.AuthenticationAnonymousVerificationHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -24,6 +31,14 @@ import java.util.List;
 public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final String MALFORMED_INPUT_MSG = "Input was malformed";
+
+    private final AuthenticationAnonymousVerificationHelper authenticationAnonymousVerificationHelper;
+
+    @Autowired
+    public CustomRestExceptionHandler(AuthenticationAnonymousVerificationHelper anonHelper) {
+        super();
+        this.authenticationAnonymousVerificationHelper = anonHelper;
+    }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -105,6 +120,21 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
 
         ApiError apiError =
                 new ApiError(HttpStatus.NOT_FOUND, ex.getLocalizedMessage(), errorStr);
+        return new ResponseEntity<Object>(
+                apiError, new HttpHeaders(), apiError.getStatus());
+    }
+
+    @ExceptionHandler({ AccessDeniedException.class })
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+//        System.out.println("### in handleAccessDeniedException()");
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAnonymous = authenticationAnonymousVerificationHelper.isAnonymous(auth);
+        HttpStatus responseCode = isAnonymous ? HttpStatus.UNAUTHORIZED : HttpStatus.FORBIDDEN;
+
+        ApiError apiError = new ApiError(
+                responseCode, ex.getLocalizedMessage(), "You do not have permission to access that " +
+                "resource.");
         return new ResponseEntity<Object>(
                 apiError, new HttpHeaders(), apiError.getStatus());
     }
