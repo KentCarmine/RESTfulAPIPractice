@@ -3,6 +3,7 @@ package com.kentcarmine.restapipractice.service;
 import com.kentcarmine.restapipractice.dto.BookDto;
 import com.kentcarmine.restapipractice.dto.CreateOrUpdateBookDto;
 
+import javax.validation.Valid;
 import java.util.Set;
 
 public interface BookService {
@@ -15,7 +16,7 @@ public interface BookService {
 
     BookDto getBookById(Long id);
 
-    BookDto createNewBook(CreateOrUpdateBookDto createOrUpdateBookDto);
+    BookDto createNewBook(@Valid CreateOrUpdateBookDto createOrUpdateBookDto);
 
     BookDto deleteBookById(Long id);
 

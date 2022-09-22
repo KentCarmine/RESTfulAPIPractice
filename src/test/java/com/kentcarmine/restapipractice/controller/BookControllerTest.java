@@ -19,6 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import javax.validation.ConstraintViolationException;
+
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -205,6 +207,7 @@ class BookControllerTest {
     @Test
     void createNewBook_invalidBook() throws Exception {
         CreateOrUpdateBookDto newBook = new CreateOrUpdateBookDto(null, "");
+        when(bookService.createNewBook(any())).thenThrow(new ConstraintViolationException("test constraint violation ex", Set.of()));
 
         mockMvc.perform(post(baseApiUrl + "new")
                 .content(JsonConverterHelper.asJsonString(newBook))
@@ -212,7 +215,7 @@ class BookControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        verify(bookService, times(0)).createNewBook(any());
+        verify(bookService, times(1)).createNewBook(any());
     }
 
     @Test
