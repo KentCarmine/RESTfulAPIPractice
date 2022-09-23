@@ -65,7 +65,7 @@ public class BookControllerV2 extends BookController {
     @Override
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public BookDto updateBook(@PathVariable Long id, @Valid @RequestBody CreateOrUpdateBookDto updateBook) {
+    public BookDto updateBook(@PathVariable Long id, /*@Valid*/ @RequestBody CreateOrUpdateBookDto updateBook) {
         return super.updateBook(id, updateBook);
     }
 

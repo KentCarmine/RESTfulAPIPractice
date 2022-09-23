@@ -68,8 +68,9 @@ public class BookServiceImpl implements BookService {
         return bookToBookDtoConverter.convert(newBook);
     }
 
+    @Validated
     @Override
-    public BookDto updateBookWithId(Long id, CreateOrUpdateBookDto bookDto) {
+    public BookDto updateBookWithId(Long id, @Valid CreateOrUpdateBookDto bookDto) {
         Book existingBook = bookRepository.findBookById(id);
 
 //        if (existingBook == null) {

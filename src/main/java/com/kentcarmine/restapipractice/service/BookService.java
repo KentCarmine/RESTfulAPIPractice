@@ -22,5 +22,5 @@ public interface BookService {
 
     boolean isBookWithIdExists(Long id);
 
-    BookDto updateBookWithId(Long id, CreateOrUpdateBookDto bookDto);
+    BookDto updateBookWithId(Long id, @Valid CreateOrUpdateBookDto bookDto);
 }

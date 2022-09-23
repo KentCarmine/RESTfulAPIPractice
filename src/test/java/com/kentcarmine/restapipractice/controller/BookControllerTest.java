@@ -284,6 +284,9 @@ class BookControllerTest {
 
     @Test
     void updateBook_invalidBook() throws Exception {
+        when(bookService.updateBookWithId(any(), any()))
+                .thenThrow(new ConstraintViolationException("test constraint violation ex", Set.of()));
+        when(bookService.isBookWithIdExists(anyLong())).thenReturn(true);
         CreateOrUpdateBookDto newBook = new CreateOrUpdateBookDto("", null);
 
         MvcResult result =  mockMvc.perform(put(baseApiUrl + 1)
@@ -292,8 +295,8 @@ class BookControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest()).andReturn();
 
-        verify(bookService, times(0)).isBookWithIdExists(anyLong());
-        verify(bookService, times(0)).updateBookWithId(anyLong(), any());
+        verify(bookService, times(1)).isBookWithIdExists(anyLong());
+        verify(bookService, times(1)).updateBookWithId(anyLong(), any());
     }
 
     @Test

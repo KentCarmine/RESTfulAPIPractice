@@ -64,7 +64,7 @@ public class BookController {
     // Update book
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public BookDto updateBook(@PathVariable Long id, @Valid @RequestBody CreateOrUpdateBookDto updateBook) {
+    public BookDto updateBook(@PathVariable Long id, /*@Valid*/ @RequestBody CreateOrUpdateBookDto updateBook) {
         if (!bookService.isBookWithIdExists(id)) {
             throw new BookNotFoundException(id);
         }
