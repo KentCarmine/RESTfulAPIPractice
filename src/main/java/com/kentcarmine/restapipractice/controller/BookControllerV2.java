@@ -57,7 +57,7 @@ public class BookControllerV2 extends BookController {
     @Override
     @PostMapping("/new")
     @ResponseStatus(HttpStatus.CREATED)
-    public BookDto createNewBook(@Valid @RequestBody CreateOrUpdateBookDto newBook) {
+    public BookDto createNewBook(/*@Valid */@RequestBody CreateOrUpdateBookDto newBook) {
         return super.createNewBook(newBook);
     }
 
@@ -65,7 +65,7 @@ public class BookControllerV2 extends BookController {
     @Override
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public BookDto updateBook(@PathVariable Long id, @Valid @RequestBody CreateOrUpdateBookDto updateBook) {
+    public BookDto updateBook(@PathVariable Long id, /*@Valid*/ @RequestBody CreateOrUpdateBookDto updateBook) {
         return super.updateBook(id, updateBook);
     }
 

@@ -11,9 +11,12 @@ import com.kentcarmine.restapipractice.model.Book;
 import com.kentcarmine.restapipractice.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import java.util.Set;
 
+@Validated
 @Service
 public class BookServiceImpl implements BookService {
 
@@ -55,16 +58,19 @@ public class BookServiceImpl implements BookService {
         return bookToBookDtoConverter.convert(bookRepository.findBookById(id));
     }
 
+    @Validated
     @Override
-    public BookDto createNewBook(CreateOrUpdateBookDto createOrUpdateBookDto) {
+    public BookDto createNewBook(@Valid CreateOrUpdateBookDto createOrUpdateBookDto) {
+//        System.out.println("### *** IN VALIDATED METHOD!");
         Book newBook = createBookDtoToBookConverter.convert(createOrUpdateBookDto);
         newBook = bookRepository.save(newBook);
 
         return bookToBookDtoConverter.convert(newBook);
     }
 
+    @Validated
     @Override
-    public BookDto updateBookWithId(Long id, CreateOrUpdateBookDto bookDto) {
+    public BookDto updateBookWithId(Long id, @Valid CreateOrUpdateBookDto bookDto) {
         Book existingBook = bookRepository.findBookById(id);
 
 //        if (existingBook == null) {
