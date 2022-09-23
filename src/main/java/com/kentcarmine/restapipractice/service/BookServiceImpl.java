@@ -57,8 +57,7 @@ public class BookServiceImpl implements BookService {
     public BookDto getBookById(Long id) {
         return bookToBookDtoConverter.convert(bookRepository.findBookById(id));
     }
-
-    @Validated
+    
     @Override
     public BookDto createNewBook(@Valid CreateOrUpdateBookDto createOrUpdateBookDto) {
 //        System.out.println("### *** IN VALIDATED METHOD!");
@@ -68,7 +67,6 @@ public class BookServiceImpl implements BookService {
         return bookToBookDtoConverter.convert(newBook);
     }
 
-    @Validated
     @Override
     public BookDto updateBookWithId(Long id, @Valid CreateOrUpdateBookDto bookDto) {
         Book existingBook = bookRepository.findBookById(id);
